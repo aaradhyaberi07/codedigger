@@ -44,9 +44,7 @@ INSTALLED_APPS = [
     #Local
     'users',
     'social_auth',
-    'problems',
-    'problemlists',
-    'playlists',
+    'topicwise',
 
     #Third Party
     'rest_framework',
@@ -128,10 +126,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1:8000",
-]
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = [
+#     "http://127.0.0.1:8000",
+# ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/

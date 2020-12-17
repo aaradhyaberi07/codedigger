@@ -6,10 +6,7 @@ from rest_framework.exceptions import AuthenticationFailed,ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes,smart_str,force_str,DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_decode
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-from .utils import Util
-from  rest_framework_simplejwt.tokens import RefreshToken,TokenError
+from .handle_validator import *
 
 
 
@@ -105,12 +102,46 @@ def required(value):
     if value is None:
         raise serializers.ValidationError('This field is required')
 
+def check_cf(value):
+    if value is None:
+        raise serializers.ValidationError('This fiels is required')
+    if not check_handle_cf(value):
+        raise serializers.ValidationError('The given handle does not exist')
+
+def check_spoj(value):
+    if value is not None and not check_handle_spoj(value):
+        raise serializers.ValidationError('The given handle does not exist')
+
+def check_codechef(value):
+    if value is not None and not check_handle_codechef(value):
+        raise serializers.ValidationError('The given handle does not exist')
+
+def check_atcoder(value):
+    if value is not None and not check_handle_atcoder(value):
+        raise serializers.ValidationError('The given handle does not exist')
+
+def check_uva_handle(value):
+    if value is not None and not check_handle_uva(value):
+        raise serializers.ValidationError('The given handle does not exist')
+
 class ProfileSerializer(serializers.ModelSerializer):
     name = serializers.CharField(validators=[required])
-    codeforces = serializers.CharField(validators=[required])
+    codeforces = serializers.CharField(validators=[check_cf])
+    spoj = serializers.CharField(validators=[check_spoj],allow_blank = True)
+    codechef = serializers.CharField(validators=[check_codechef],allow_blank = True)
+    atcoder = serializers.CharField(validators=[check_atcoder],allow_blank = True)
+    uva_handle = serializers.CharField(validators=[check_uva_handle],allow_blank = True)
+    #uva_id = serializers.SerializerMethodField()
+
+
+    # def get_uva_id(self,obj):
+    #     uva = obj['uva_handle']
+    #     if not uva_id.strip():
+    #         return get_uva(uva)
+
     class Meta:
         model = Profile
-        fields = ['id','name','codeforces','codechef','atcoder','spoj','uva_handle','uva_id']
+        fields = ['name','codeforces','codechef','atcoder','spoj','uva_handle']
 
 
     
@@ -125,3 +156,40 @@ class RequestPasswordResetEmailSeriliazer(serializers.Serializer):
 
 
     
+class ResetPasswordEmailRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(min_length=2)
+
+    redirect_url = serializers.CharField(max_length=500, required=False)
+
+    class Meta:
+        fields = ['email']
+
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        min_length=6, max_length=68, write_only=True)
+    token = serializers.CharField(
+        min_length=1, write_only=True)
+    uidb64 = serializers.CharField(
+        min_length=1, write_only=True)
+
+    class Meta:
+        fields = ['password', 'token', 'uidb64']
+
+    def validate(self, attrs):
+        try:
+            password = attrs.get('password')
+            token = attrs.get('token')
+            uidb64 = attrs.get('uidb64')
+
+            id = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(id=id)
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                raise AuthenticationFailed('The reset link is invalid', 401)
+
+            user.set_password(password)
+            user.save()
+
+            return (user)
+        except Exception as e:
+            raise AuthenticationFailed('The reset link is invalid', 401)
+        return super().validate(attrs)
