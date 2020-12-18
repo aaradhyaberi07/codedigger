@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     #Local
     'users',
     'social_auth',
-    'topicwise',
+    'lists',
 
     #Third Party
     'rest_framework',

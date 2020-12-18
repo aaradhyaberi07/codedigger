@@ -16,8 +16,6 @@ class ProblemSerializer1(serializers.ModelSerializer):
 
 
 
-
-
     class Meta:
         model = Problem
         fields = ('id','name','prob_id','url','contest_id','rating','index','tags','solved')

@@ -30,3 +30,7 @@ class Solved(models.Model):
     problem = models.ForeignKey(to=Problem,on_delete = models.CASCADE,null=True)
     def __str__(self):
         return str(self.user.username) + "'s solve" 
+
+# admin created / user created
+# ladder -> ladder/list(show all)/or both
+# topicwise/levelwise
