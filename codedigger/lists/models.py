@@ -22,7 +22,17 @@ class ProbPreCreatedList(models.Model):
     description = models.TextField(max_length = 500,default="")
     ladder = models.BooleanField(default=False)
     def __str__(self):
-        return self.name
+        return self.name  
+
+# class List(models.Model):
+#     owner = models.ForeignKey(to=User, on_delete=models.CASCADE)
+#     problem = models.ManyToManyField(Problem,related_name="list")
+#     name = models.CharField(max_length=100,default = "")
+#     description = models.TextField(max_length = 500,default="")
+#     admincreated = models.BooleanField(default=True)
+#     topicwise = models.BooleanField(default=True)
+#     def __str__(self):
+#         return self.name
     
 
 class Solved(models.Model):
