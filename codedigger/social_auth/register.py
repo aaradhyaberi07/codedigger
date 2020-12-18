@@ -3,8 +3,6 @@ from users.models import User
 import os
 import random
 from rest_framework.exceptions import AuthenticationFailed
-from dotenv import load_dotenv
-load_dotenv()
 
 def generate_username(name):
 
@@ -24,7 +22,7 @@ def register_social_user(provider, user_id, email, name):
         if provider == filtered_user_by_email[0].auth_provider:
 
             registered_user = authenticate(
-                username=filtered_user_by_email.username, password=os.getenv('SOCIAL_SECRET'))
+                username=filtered_user_by_email.username, password='test123')
 
             return {
                 'username': registered_user.username,
@@ -39,14 +37,14 @@ def register_social_user(provider, user_id, email, name):
     else:
         user = {
             'username': generate_username(name), 'email': email,
-            'password': os.getenv('SOCIAL_SECRET')}
+            'password': 'test123'}
         user = User.objects.create_user(**user)
         user.is_verified = True
         user.auth_provider = provider
         user.save()
 
         new_user = authenticate(
-            username=filtered_user_by_email.username, password=os.getenv('SOCIAL_SECRET'))
+            username=filtered_user_by_email.username, password='test123')
         return {
             'email': new_user.email,
             'username': new_user.username,
